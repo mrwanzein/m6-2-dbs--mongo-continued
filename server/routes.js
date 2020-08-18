@@ -1,5 +1,9 @@
 const router = require("express").Router();
-const { delay } = require("./helpers");
+const delay = (delay) => {
+  return new Promise((res, rej) => {
+    setTimeout(res, delay);
+  });
+}
 
 const NUM_OF_ROWS = 8;
 const SEATS_PER_ROW = 12;
