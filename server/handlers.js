@@ -1,5 +1,5 @@
 'use strict';
-
+const assert = require("assert");
 const { MongoClient } = require("mongodb");
 
 require("dotenv").config();
@@ -32,4 +32,21 @@ const getSeats = async (req, res) => {
     }
 };
 
-module.exports = { getSeats };
+const bookSeat = async (_id) => {
+    try {
+        const client = await MongoClient(MONGO_URI, options);
+        await client.connect();
+
+        const db = client.db('ticket_booker');
+        const r = await db.collection("seats").updateOne({ _id }, {$set: {isBooked: true}});
+        assert.equal(1, r.matchedCount);
+        assert.equal(1, r.modifiedCount);
+
+        client.close();
+
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+module.exports = { getSeats, bookSeat };

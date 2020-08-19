@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getSeats } = require("./handlers");
+const { getSeats, bookSeat } = require("./handlers");
 
 const delay = (delay) => {
   return new Promise((res, rej) => {
@@ -68,8 +68,6 @@ router.post("/api/book-seat", async (req, res) => {
     };
   }
 
-  await delay(Math.random() * 3000);
-
   const isAlreadyBooked = !!state.bookedSeats[seatId];
   if (isAlreadyBooked) {
     return res.status(400).json({
@@ -93,13 +91,20 @@ router.post("/api/book-seat", async (req, res) => {
   }
 
   lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
+  
+  try {
+    await bookSeat(seatId);
+    return res.status(200).json({
+      status: 200,
+      success: true,
+    });
+  } catch(err) {
+    return res.status(500).json({
+      status: 500,
+      success: false,
+    });
+  }
 
-  state.bookedSeats[seatId] = true;
-
-  return res.status(200).json({
-    status: 200,
-    success: true,
-  });
 });
 
 module.exports = router;
