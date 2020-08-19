@@ -32,13 +32,13 @@ const getSeats = async (req, res) => {
     }
 };
 
-const bookSeat = async (_id) => {
+const bookSeat = async (_id, email, fullName) => {
     try {
         const client = await MongoClient(MONGO_URI, options);
         await client.connect();
 
         const db = client.db('ticket_booker');
-        const r = await db.collection("seats").updateOne({ _id }, {$set: {isBooked: true}});
+        const r = await db.collection("seats").updateOne({ _id }, {$set: {isBooked: true, email, fullName}});
         assert.equal(1, r.matchedCount);
         assert.equal(1, r.modifiedCount);
 

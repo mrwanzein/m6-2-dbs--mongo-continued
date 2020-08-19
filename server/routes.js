@@ -1,12 +1,6 @@
 const router = require("express").Router();
 const { getSeats, bookSeat } = require("./handlers");
 
-const delay = (delay) => {
-  return new Promise((res, rej) => {
-    setTimeout(res, delay);
-  });
-}
-
 const NUM_OF_ROWS = 8;
 const SEATS_PER_ROW = 12;
 
@@ -60,7 +54,7 @@ router.get("/api/seat-availability", async (req, res) => {
 let lastBookingAttemptSucceeded = false;
 
 router.post("/api/book-seat", async (req, res) => {
-  const { seatId, creditCard, expiration } = req.body;
+  const { seatId, creditCard, expiration, email, fullName } = req.body;
 
   if (!state) {
     state = {
@@ -82,6 +76,13 @@ router.post("/api/book-seat", async (req, res) => {
     });
   }
 
+  if (!email || !fullName) {
+    return res.status(400).json({
+      status: 400,
+      message: "Please provide the missing information about you!",
+    });
+  }
+
   if (lastBookingAttemptSucceeded) {
     lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
 
@@ -93,7 +94,7 @@ router.post("/api/book-seat", async (req, res) => {
   lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
   
   try {
-    await bookSeat(seatId);
+    await bookSeat(seatId, email, fullName);
     return res.status(200).json({
       status: 200,
       success: true,
